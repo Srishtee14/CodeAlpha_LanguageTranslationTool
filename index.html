@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Translation Tool</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .container {
+            background: white;
+            max-width: 650px;
+            margin: 30px auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px #cccccc;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        textarea {
+            width: 90%;
+            height: 120px;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        select, button {
+            padding: 10px;
+            margin: 8px;
+            font-size: 15px;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #result {
+            background: #f3f4f6;
+            padding: 15px;
+            min-height: 35px;
+            overflow-wrap: anywhere;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Language Translation Tool</h1>
+        <p>Enter text and choose the languages.</p>
+
+        <textarea id="inputText" placeholder="Enter text to translate..."></textarea>
+
+        <br>
+
+        <label for="sourceLanguage">From:</label>
+        <select id="sourceLanguage">
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="bn">Bengali</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+        </select>
+
+        <br>
+
+        <label for="targetLanguage">To:</label>
+        <select id="targetLanguage">
+            <option value="hi">Hindi</option>
+            <option value="en">English</option>
+            <option value="bn">Bengali</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+        </select>
+
+        <br>
+
+        <button onclick="translateText()">Translate</button>
+
+        <h3>Translated Text</h3>
+        <div id="result">Your translation will appear here.</div>
+    </div>
+
+    <script>
+        async function translateText() {
+            const text = document.getElementById("inputText").value.trim();
+            const source = document.getElementById("sourceLanguage").value;
+            const target = document.getElementById("targetLanguage").value;
+            const result = document.getElementById("result");
+
+            if (text === "") {
+                result.innerText = "Please enter some text.";
+                return;
+            }
+
+            if (source === target) {
+                result.innerText = text;
+                return;
+            }
+
+            result.innerText = "Translating...";
+
+            try {
+                const url = "https://api.mymemory.translated.net/get?q="
+                    + encodeURIComponent(text)
+                    + "&langpair=" + source + "|" + target;
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error("Translation service unavailable");
+                }
+
+                const data = await response.json();
+
+                if (data.responseData && data.responseData.translatedText) {
+                    result.innerText = data.responseData.translatedText;
+                } else {
+                    result.innerText = "Translation could not be completed.";
+                }
+            } catch (error) {
+                result.innerText =
+                    "Unable to translate. Check your internet connection and try again.";
+            }
+        }
+    </script>
+</body>
+</html>
